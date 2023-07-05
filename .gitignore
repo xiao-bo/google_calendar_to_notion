@@ -1,0 +1,7 @@
+__pycache__
+.pytest_cashe
+.DS_Store
+*.pyc
+.cache/
+*.un~
+backup/
