@@ -1,3 +1,6 @@
 [system_info]
+# timestamp，例如2023/6/6 12:00:00
 last_updated=
 
+# 要抓未來幾天內的資料，以天為單位，例如 1day, 2days, ....,60days
+google_calendar_future_range
