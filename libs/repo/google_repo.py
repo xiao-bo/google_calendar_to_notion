@@ -12,36 +12,39 @@ class GoogleCalendarRepo(object):
         self.cal = GoogleCalendarAPI()
 
     def query_calendar(
-            self, last_updated_time: str, future_range: str):
-        last_updated_time = datetime.strptime(
-            last_updated_time, '%Y/%m/%d %H:%M:%S'
-        )
+            self, last_updated_time: datetime, future_range: str
+    ) -> list:
+
         days = self._transfer_future_range_to_days(future_range)
         events = self.cal.query_event_from_calendar(
             last_updated_time,
             days
         )
+
+        ret_events = []
+
         if not events:
-            print('No upcoming events found.')
+            print('No events found.')
             return
 
-        # Prints the start and name of the next 10 events
         for event in events:
-            start = event['start'].get('dateTime', event['start'].get('date'))
-            end = event['end'].get('dateTime', event['end'].get('date'))
+            ret_dict = {}
 
-            print(f'title = {event["summary"]},'
-                  f'狀態:{event["status"]} '
-                  f'開始時間:{start}, 結束時間: {end} '
-                  f'更新時間:{event["updated"]} '
-                  f'link:{event["htmlLink"]}'
-                  )
-            try:
-                print(event['description'])
-            except:
-                continue
+            ret_dict['start'] = event['start'].get(
+                'dateTime', event['start'].get('date'))
+            ret_dict['end'] = event['end'].get(
+                'dateTime', event['end'].get('date'))
+            ret_dict['title'] = event.get("summary")
+            ret_dict['status'] = event.get("status")
+            ret_dict["updated"] = datetime.strptime(
+                event.get("updated"), '%Y-%m-%dT%H:%M:%S.%fZ'
+            )
+            ret_dict["link"] = event.get("htmlLink")
+            ret_dict["description"] = event.get("description")
 
-        return events
+            ret_events.append(ret_dict)
+
+        return ret_events
 
     def _transfer_future_range_to_days(
         self, future_range: str

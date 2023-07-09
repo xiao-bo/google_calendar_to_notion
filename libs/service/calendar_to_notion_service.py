@@ -1,4 +1,5 @@
 # 同步calendar event 至notion
+from datetime import datetime
 from configobj import ConfigObj
 import context
 from libs.repo.google_repo import GoogleCalendarRepo
@@ -30,9 +31,7 @@ class CalendarToNotionService(object):
 
         ]
         '''
-        # 1.1. 若活動的lasted_edited_time小於最後更新時間，則跳過此活動（因為沒更新）
-        # 1.2. 若活動的lasted_edited_time大於最後更新時間，則此活動（因為有更新）
-
+        
         # 2. 使用notion api，get database rows
         #notion_rows = self.__get_rows_from_notion_database(last_updated_time)
 
@@ -68,25 +67,22 @@ class CalendarToNotionService(object):
         '''
 
     def __get_last_updated_time(self):
-
-        return self.config['system_info']['last_updated']
+        last_updated_time = self.config['system_info']['last_updated']
+        return datetime.strptime(
+            last_updated_time, '%Y/%m/%d %H:%M:%S'
+        )
 
     def __get_future_range(self):
         return self.config['system_info']['google_calendar_future_range']
 
     def __get_event_from_google_calendar(
-            self, last_updated_time: str, future_range: str) -> list:
+            self, last_updated_time: datetime, future_range: str) -> list:
         # 讀取google 日曆的最後更新時間到未來近一個月的所有活動，
         # 得到日曆的title, url, content, date, updated_time。
-        # 1.1. 若活動的lasted_edited_time小於最後更新時間，則跳過此活動（因為沒更新）
-        # 1.2. 若活動的lasted_edited_time大於最後更新時間，則此活動（因為有更新）
-
-        print('__get_event_from_google_calendar')
-        print(f'last_updated_time = {last_updated_time}')
-        print(f'future_range = {future_range}')
         google_calendar_repo = GoogleCalendarRepo()
         events = google_calendar_repo.query_calendar(
             last_updated_time, future_range)
+        return events
 
     def __get_rows_from_notion_database(
             self, last_updated_time: str) -> list:

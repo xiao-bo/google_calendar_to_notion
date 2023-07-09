@@ -58,6 +58,7 @@ class GoogleCalendarAPI(object):
         last_updated_time: datetime,
         future_days: int
     )->object: 
+        print('query_calendar')
 
         try:
             service = build(
@@ -65,12 +66,10 @@ class GoogleCalendarAPI(object):
                 'v3',
                 credentials=self.__creds
             )
-
             # Call the Calendar API
             time_min = last_updated_time.isoformat()+'Z'
             time_max = (datetime.utcnow()+timedelta(days=future_days)
                         ).isoformat()+'Z'
-            print('query_calendar')
             events_result = service.events().list(
                 calendarId='primary',
                 timeMin=time_min,
