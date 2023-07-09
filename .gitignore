@@ -5,3 +5,6 @@ __pycache__
 .cache/
 *.un~
 backup/
+config.ini
+auth.json
+token.json
