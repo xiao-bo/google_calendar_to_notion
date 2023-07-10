@@ -3,6 +3,7 @@ from datetime import datetime
 from configobj import ConfigObj
 import context
 from libs.repo.google_repo import GoogleCalendarRepo
+from libs.repo.notion_repo import NotionRepo
 
 
 class CalendarToNotionService(object):
@@ -20,8 +21,10 @@ class CalendarToNotionService(object):
         # 1. 根據config.ini的timestamp，
         # 讀取google 日曆的最後更新時間到未來近一個月的所有活動，
         # 得到日曆的title, url, content, date, updated_time。
+
         event_list = self.__get_event_from_google_calendar(
             last_updated_time, future_range)
+        print(event_list)
         '''
         # event is list of object
         # event_list = [{
@@ -31,10 +34,11 @@ class CalendarToNotionService(object):
 
         ]
         '''
-        
-        # 2. 使用notion api，get database rows
-        #notion_rows = self.__get_rows_from_notion_database(last_updated_time)
 
+        # 2. 使用notion api，get database rows
+        notion_rows = self.__get_rows_from_notion_database(
+            last_updated_time)
+        print(notion_rows)
         # 3.拿到url和page_id後，跟日曆的url做比較，得到待新增的page，
         # 和待更新的page（待更新的page包含哪些page的tag要改成取消）
         '''
@@ -87,8 +91,11 @@ class CalendarToNotionService(object):
     def __get_rows_from_notion_database(
             self, last_updated_time: str) -> list:
         print('__get_rows_from_notion_database')
+        notion_repo = NotionRepo()
+        rows = notion_repo.query_database()
+        return rows
 
-    def __grouping_event_list(
+    def _grouping_event_list(
             self, event_list: list, notion_rows: list) -> list:
         # 將event list分兩群：待更新跟待新增的事件
         #
