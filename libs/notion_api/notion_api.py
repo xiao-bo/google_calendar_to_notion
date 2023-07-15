@@ -8,7 +8,7 @@ import context
 
 
 class NotionAPI(object):
-    def __init__(self):
+    def __init__(self, page_size: int):
         # to do
         # 讀設定檔
         self.config = ConfigObj(
@@ -24,7 +24,7 @@ class NotionAPI(object):
             "Content-Type": "application/json",
             "Notion-Version": "2022-06-28",
         }
-        self.__page_size = 2
+        self.__page_size = page_size
 
     def query_rows_from_database(self):
         url = f"https://api.notion.com/v1/databases/{self.__DATABASE_ID}/query"
@@ -48,3 +48,41 @@ class NotionAPI(object):
             }
 
         return ret
+
+    def updatePage(self, pageId:str, updateData:dict) -> dict:
+        updateUrl = f"https://api.notion.com/v1/pages/{pageId}"
+        data = json.dumps(updateData)
+
+        response = requests.request(
+            "PATCH", updateUrl, headers=self.headers, data=data
+        )
+        return response
+
+
+    def insert_page(self, insertData):
+        json_data = {
+            'parent': {
+                'database_id': self.__DATABASE_ID
+            },
+
+            'properties': insertData
+        }
+        response = requests.post(
+            'https://api.notion.com/v1/pages',
+            headers=self.headers, json=json_data
+        )
+        return response
+
+
+    def insert_content_of_page(self, page_id, row):
+
+        response = requests.patch(
+            f'https://api.notion.com/v1/blocks/{page_id}/children',
+            headers=self.headers, json=row)
+
+        return response
+
+
+
+
+
