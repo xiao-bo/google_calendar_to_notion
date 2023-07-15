@@ -15,6 +15,7 @@ class CalendarToNotionService(object):
         )
 
     def handle(self):
+        
         last_updated_time = self.__get_last_updated_time()
         future_range = self.__get_future_range()
 
@@ -24,16 +25,6 @@ class CalendarToNotionService(object):
 
         event_list = self.__get_event_from_google_calendar(
             last_updated_time, future_range)
-        print(event_list)
-        '''
-        # event is list of object
-        # event_list = [{
-            "title":xx, 
-            "url":xx
-        },
-
-        ]
-        '''
 
         # 2. 使用notion api，get database rows
         notion_rows = self.__get_rows_from_notion_database(
@@ -48,16 +39,16 @@ class CalendarToNotionService(object):
 
         
         # 4. 更新row of notion
-        #self.__update_row_in_notion_database(
-        #    updated_event_list)
+        self.__update_row_in_notion_database(
+            updated_event_list)
         
         # 5. 新增row of notion，包含內文
         self.__append_row_to_notion_database(
             new_event_list)
-        '''
+        
         # 5. 更新設定檔
-        self.__update_last_updated_time_at_config()
-        '''
+        #self.__update_last_updated_time_at_config()
+        
 
     def __get_last_updated_time(self):
         last_updated_time = self.config['system_info']['last_updated']
@@ -224,4 +215,7 @@ class CalendarToNotionService(object):
 
     def __update_last_updated_time_at_config(self):
         # 更新設定檔的時間，設定成現在
-        print("__update_last_updated_time_at_config")
+        print('更新設定檔時間')
+        self.config['system_info']['last_updated'] = \
+        datetime.now().strftime('%Y/%m/%d %H:%M:%S')
+        self.config.write()
