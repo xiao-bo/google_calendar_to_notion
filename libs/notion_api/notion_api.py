@@ -1,7 +1,6 @@
 import requests
 from requests.auth import HTTPBasicAuth
 import os
-from notion_client import Client
 import json
 from configobj import ConfigObj
 import context
