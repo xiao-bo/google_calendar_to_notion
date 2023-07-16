@@ -1,4 +1,4 @@
-    
+
 from libs.notion_api.notion_api import NotionAPI
 
 
@@ -41,14 +41,14 @@ class NotionRepo(object):
                 event['properties']
             )
             print(f'insert page_id and '
-                  f'get response = {response.json()} '
+                  f'get response = {response} '
                   )
 
             if event.get('description'):
                 # 如果有備註，拿page_id，新增備註
-                self.__insert_content_of_page(response,event)
+                self.__insert_content_of_page(response, event)
 
-    def __insert_content_of_page(self, response:dict, event: dict):
+    def __insert_content_of_page(self, response: dict, event: dict):
         data = {
             'children': [
                 {
@@ -69,7 +69,105 @@ class NotionRepo(object):
         }
         page_id = response.json()['id']
         response = self.notion_api.insert_content_of_page(
-            page_id,data
+            page_id, data
         )
         print(response)
-        print(response.json())
+
+    def transfer_new_event(self, new_event: list) -> list:
+        ret = []
+
+        for event in new_event:
+            tmp = {}
+            tmp['description'] = event.get('description')
+            tmp['properties'] = {
+                '連結': {
+                    "rich_text": [
+                        {
+                            "type": "text",
+                            "text": {
+                                "content": event['link'],
+                                "link": {
+                                    "url": event['link']
+                                }
+                            }
+                        }
+                    ]
+                },
+                'Tags': {
+                    "multi_select": [
+                        {
+                            "name": event['status']
+                        }
+                    ]
+                },
+                "Date": {
+                    "date": {
+                        "start": event['start'],
+                        "end": event['end']
+                    }
+                },
+                'Name': {
+                    'title': [
+                        {
+                            'text': {
+                                'content': event['title']
+                            },
+                        },
+                    ],
+                },
+            }
+            ret.append(tmp)
+
+        return ret
+
+    def transfer_updated_event(
+        self, updated_event: list, notion_rows: list
+    ) -> list:
+        ret = []
+        for event in updated_event:
+            tmp = {}
+            tmp['row_id'] = self.__get_row_id(event, notion_rows)
+            tmp['properties'] = {
+                '連結': {
+                    "rich_text": [
+                        {
+                            "type": "text",
+                            "text": {
+                                "content": event['link'],
+                                "link": {
+                                    "url": event['link']
+                                }
+                            }
+                        }
+                    ]
+                },
+                'Tags': {
+                    "multi_select": [
+                        {
+                            "name": event['status']
+                        }
+                    ]
+                },
+                "Date": {
+                    "date": {
+                        "start": event['start'],
+                        "end": event['end']
+                    }
+                },
+                'Name': {
+                    'title': [
+                        {
+                            'text': {
+                                'content': event['title']
+                            },
+                        },
+                    ],
+                },
+            }
+            ret.append(tmp)
+        return ret
+
+    def __get_row_id(self, event: list, notion_rows: list) -> str:
+        for row in notion_rows:
+            if event['link'] == row.get('google_link_of_page'):
+                return row['row_id']
