@@ -9,6 +9,7 @@ from libs.repo.notion_repo import NotionRepo
 class CalendarToNotionService(object):
 
     def __init__(self):
+        print(context.PROJECT_ROOT_PATH)
         self.config = ConfigObj(
             f'{context.PROJECT_ROOT_PATH}/docs/config.ini',
             encoding='utf-8'
