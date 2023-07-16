@@ -69,7 +69,6 @@ class GoogleCalendarAPI(object):
                 calendarId='primary',
                 timeMin=time_min,
                 timeMax=time_max,
-                maxResults=5,
                 singleEvents=True,
                 showDeleted=True,
                 orderBy='startTime'
